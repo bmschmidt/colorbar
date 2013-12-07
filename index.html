@@ -15,7 +15,7 @@
 }
 </style>
 
-    <h1>Dynamically-updating color scales</h1>
+    <h1>Color legend with dynamic pointer: demo</h1>
 
     <body>
     Colorize by: <button id="value">size</button>
@@ -61,8 +61,10 @@ circles
     .style("fill",function(d) {return fillings(d.value) } )
 
 var whichValue = "value"
+
+
 changeFillings = function() {
-    tops = ["red","green","brown","purple","blue","orange","crimson"]
+tops = d3.scale.category20().range()
     var newTop = tops[Math.floor(Math.random() * tops.length)];
 
     console.log(whichValue)
@@ -85,6 +87,7 @@ d3.selectAll("button").on("click",function(d) {
     changeFillings()
     colorbar.scale(fillings).title("Hover to update the pointer").update()
 })
+
 //OK, now the actual colorbar stuff:
 
 colorbar = Colorbar().scale(fillings).title("Hover to update the pointer")
