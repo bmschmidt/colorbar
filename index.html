@@ -1,0 +1,97 @@
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="colorbar.js" charset="utf-8"></script>
+
+<style>
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+</style>
+
+    <h1>Dynamically-updating color scales</h1>
+
+    <body>
+    Colorize by: <button id="value">size</button>
+<button id="x">X location</button>
+<button id="y">Y location</button>
+    <br>
+    <svg style="width:1000px;height:600px;background:beige">
+    </body>
+
+
+    <script>
+
+//make some fake data;
+
+data = d3.range(0,1050).map(function(d) {
+    return {
+        "x":300 + Math.random()*650,
+        "y":50 + Math.random()*500,
+        "value":(Math.random()*Math.random())*25}
+})
+
+data.sort(function(a,b){return a-b})
+
+
+//map it to some elements and data
+circles = d3.select("svg").append("g").selectAll("circle").data(data)
+
+
+//make a color scale:
+range = data.map(function(d) {return d.value})
+
+fillings = d3.scale.linear()
+    .domain(d3.extent(range))
+    .range(["white","red"])
+
+
+circles
+    .enter()
+    .append("circle")
+    .attr("cx",function(d) {return d.x})
+    .attr("cy",function(d) {return d.y})
+    .attr("r",function(d) {return d.value})
+    .style("fill",function(d) {return fillings(d.value) } )
+
+var whichValue = "value"
+changeFillings = function() {
+    tops = ["red","green","brown","purple","blue","orange","crimson"]
+    var newTop = tops[Math.floor(Math.random() * tops.length)];
+
+    console.log(whichValue)
+    fillings
+        .domain(
+            d3.extent(data.map(function(d) {
+                return d[whichValue]
+            }))).range(["white",newTop])
+    
+    circles
+    .transition().duration(1000)
+        .style("fill",function(d) {return fillings(d[whichValue]) } )
+
+}
+
+d3.selectAll("button").on("click",function(d) {
+    variable = d3.select(this).attr("id")
+    console.log(variable)
+    whichValue = variable
+    changeFillings()
+    colorbar.scale(fillings).title("Hover to update the pointer").update()
+})
+//OK, now the actual colorbar stuff:
+
+colorbar = Colorbar().scale(fillings).title("Hover to update the pointer")
+colorbar.update()
+
+circles
+    .on("mouseover",function(d) {colorbar.pointTo(d[whichValue])})
+
+
+</script>
