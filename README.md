@@ -1,7 +1,13 @@
 Colorbar
 ========
 
-Dynamically updatable color bars for use with d3.js.
+Drop in color axis for use with d3.js with two notable features:
+
+1. It takes a scale with a numeric domain and color range and automatically generates a legend
+chart for it.
+
+2. By binding mouseover events to its "pointTo" method, hovering on a chart element will
+update a pointer on the legend.
 
 See example at http://benschmidt.org/colorbar
 
