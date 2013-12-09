@@ -78,18 +78,24 @@ function Colorbar() {
 	    .enter()
             .append("rect")
             .classed("rect",true)
+            .classed("legend",true)
 	    .style("opacity",0)
+	    .style("stroke-width",0)
 	    .attr({
                 width: barWidth,
                 height : 1, //single pixel widths
                 y: function(d) {
 		    return d
 		},
-                fill: function(d) {
+                stroke: function(d) {
 		    //the color should be 
                     return scale(fillLegendScale.invert(d));
                 }
 	    })
+	    .style(  { fill: function(d) {
+		//the color should be 
+                return scale(fillLegendScale.invert(d));
+            }})
 
 	//update attributes of all of them.
         colorScaleRects
@@ -107,6 +113,10 @@ function Colorbar() {
                 }
             })
 	    .style("opacity",1)
+	    .style(  {              fill: function(d) {
+		//the color should be 
+                return scale(fillLegendScale.invert(d));
+            }});
 
 	//If the scale has changed size, some rects are extraneous
         colorScaleRects
