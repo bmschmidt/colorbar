@@ -83,7 +83,8 @@ function Colorbar() {
 	    .style("stroke-width",0)
 	    .attr({
                 width: barWidth,
-                height : 1, //single pixel widths
+                height : 2, //single pixel widths produce ghosting, so 
+		//I just let them overlap;
                 y: function(d) {
 		    return d
 		},
@@ -103,7 +104,7 @@ function Colorbar() {
 	    .duration(transitionDuration)
             .attr({
                 width: barWidth,
-                height : 1, //single pixel widths
+                height : 2,
                 y: function(d) {
 		    return d
 		},
