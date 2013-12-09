@@ -36,6 +36,19 @@ function Colorbar() {
             })
             .call(drag)
 
+
+    var checkScaleType = function() {
+	// AFAIK, d3 scale types aren't easily accessible from the scale itself.
+	// But we need to know the scale type for formatting axes properly
+	cop = scale.copy();
+	cop.range([1,2])
+	cop.domain([1,4])
+	if (cop(2)==1.5) {return "log"}
+	if (cop(2)==2.5) {return "linear"}
+	if (cop(2)==2.5) {return "sqrt"}
+
+    }
+
     var update = function() {
 
 	var transitionDuration = 1000
@@ -44,8 +57,6 @@ function Colorbar() {
 
         // define some defaults
         //Create a fill legend entry, if it doesn't exist
-
-
 
         fillLegendScale = scale.copy()
 
@@ -161,11 +172,10 @@ function Colorbar() {
             .text(function(d) {return d.label})
 
         titles.exit().remove()
-
+	return this;
     }
     
     prettyName =  function(number) {
-	
 
         var comparisontype = comparisontype || function() {return ""}
 
@@ -195,8 +205,6 @@ function Colorbar() {
             if (number < 1) {return("1:" + Math.round(1/number))}
         }
     }
-
-
 
     pointTo=function(inputNumbers) {
 	var pointer = fillLegend.selectAll(".pointer")
@@ -276,6 +284,7 @@ function Colorbar() {
     that.scale = function(value) {
         if (!arguments.length) return scale;
         scale=value
+	scaleType = checkScaleType()
         return that
     }
 
