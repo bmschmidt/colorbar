@@ -30,6 +30,8 @@ colorbar = Colorbar()
 </script>
 ```
 
+(I'd download the javascript, though: no promises that url will permanently contain the latest version of the script).
+
 ## Update
 
 A temporary pointer can be adjusted on the colorbar using a colorbar object's pointTo method.
@@ -39,6 +41,18 @@ colorbar.pointTo(26)
 ```
 
 The pointer will drop to the appropriate place, and then fade away after five seconds.
+
+In practice, you'll almost always want to bind this to a mouseover event: some fake code would look like this:
+```
+var elements = d3.selectAll("circle").data(whatever)
+
+//this is how you'd be defining the color of the element:
+elements.style("fill",function(d) {return myScale(d.colorDatum)})
+
+//The sort of mouseover event you want:
+elements.on("mouseover",function(d) {colorbar.pointTo(d.colorDatum)})
+
+```
 
 ## Accessors
 
