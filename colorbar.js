@@ -63,7 +63,7 @@ function Colorbar() {
         legendRange = d3.range(0,barHeight,by=barHeight/(fillLegendScale.domain().length-1))
         legendRange.push(barHeight)
 
-        fillLegendScale.range(legendRange)
+        fillLegendScale.range(legendRange.reverse())
 
 	//create if doesn't exist.
         fillRects = fillLegend.selectAll("#fillLegendRects").data([1])

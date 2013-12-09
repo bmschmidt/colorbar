@@ -13,6 +13,15 @@
     font-family: sans-serif;
     font-size: 11px;
 }
+
+circle {
+stroke:grey;
+stroke-width:0px;
+}
+
+circle:hover {
+stroke-width:1px;
+}
 </style>
 
     <h1>Color legend with dynamic pointer: demo</h1>
@@ -22,7 +31,10 @@
 <button id="x">X location</button>
 <button id="y">Y location</button>
     <br>
-    <svg style="width:1000px;height:600px;background:beige">
+    <svg style="width:1000px;height:600px;background:beige"></svg>
+<br>
+      <a href=http://github.com/bmschmidt/colorbar>Download the source</a>
+
     </body>
 
 
@@ -90,7 +102,7 @@ d3.selectAll("button").on("click",function(d) {
 
 //OK, now the actual colorbar stuff:
 
-colorbar = Colorbar().scale(fillings).title("Hover to update the pointer")
+colorbar = Colorbar().scale(fillings).barHeight(500).title("Hover to update the pointer")
 colorbar.update()
 
 circles

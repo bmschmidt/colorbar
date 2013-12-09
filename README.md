@@ -16,13 +16,18 @@ See example at http://benschmidt.org/colorbar
 Build a colorbar by calling the colorbar function.
 
 For example:
+
 ```
-myScale = d3.scale.linear()
+<script src="http://benschmidt.org/colorbar/colorbar.js"></script>
+
+<script>
+myScale = d3.scale.linear().range(["red","white","blue"]).domain([0,4,25])
 
 colorbar = Colorbar()
 	.origin([15,60])
 	.scale(myScale)
 	.update()
+</script>
 ```
 
 ## Update
