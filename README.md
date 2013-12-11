@@ -54,6 +54,16 @@ elements.on("mouseover",function(d) {colorbar.pointTo(d.colorDatum)})
 
 ```
 
+## General methods:
+
+### colorbar.update()
+
+Draws or redraws the scale (if necessary) based on the current title, scale, etc.
+
+### colorbar.pointTo()
+
+Sets the pointer as described above.
+
 ## Accessors
 
 ### colorbar.scale()
