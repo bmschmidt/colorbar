@@ -41,11 +41,12 @@ function Colorbar() {
 	// AFAIK, d3 scale types aren't easily accessible from the scale itself.
 	// But we need to know the scale type for formatting axes properly
 	cop = scale.copy();
-	cop.range([1,2])
-	cop.domain([1,4])
-	if (cop(2)==1.5) {return "log"}
-	if (cop(2)==2.5) {return "linear"}
-	if (cop(2)==2.5) {return "sqrt"}
+	cop.range([0, 1])
+	cop.domain([1, 10])
+	if (Math.abs((cop(10) - cop(1)) / Math.log(10/1) - (cop(10) - cop(2)) / Math.log(10/2)) < 1e-6) {return "log"}
+	else if (Math.abs((cop(10) - cop(1)) / 9 - (cop(10) - cop(2)) / 8) < 1e-6) {return "linear"}
+	else if (Math.abs((cop(10) - cop(1)) / (Math.sqrt(10) - 1) - (cop(10) - cop(2)) / (Math.sqrt(10) - Math.sqrt(2))) < 1e-6) {return "sqrt"}
+
 
     }
 
