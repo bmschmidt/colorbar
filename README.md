@@ -26,7 +26,10 @@ myScale = d3.scale.linear().range(["red","white","blue"]).domain([0,4,25])
 colorbar = Colorbar()
 	.origin([15,60])
 	.scale(myScale)
-	.update()
+
+placeholder = "#colorbar-here"
+d3.select(placeholder)
+    .call(colorbar)
 </script>
 ```
 
@@ -66,6 +69,11 @@ Sets the pointer as described above.
 
 ## Accessors
 
+### colorbar.origin()
+
+Sets (or returns) the offset of the colorbar as an object with an x and y
+attributes.
+
 ### colorbar.scale()
 
 Sets (or returns) a D3 scale associated with the colorbar object.
@@ -74,11 +82,11 @@ Sets (or returns) a D3 scale associated with the colorbar object.
 
 Sets (or returns) the x,y location within the svg holding the colorbar. Specified in pixels.
 
-### colorbar.barHeight()
+### colorbar.height()
 
 Sets (or fetches) the height of the scale.
 
-### colorbar.barWidth()
+### colorbar.width()
 
 Sets (or fetches) the width of the bars in the scale (or the height, in landscape view). Specified in pixels.
 
