@@ -1,59 +1,59 @@
 function Colorbar() {
-    var scale, //the input scale this represents
-        fillLegendScale, //a linear scale chart maps the scale onto a bar to be shown here.
-        fillLegend,//a d3 selection chart contains all the elements used here;
+    var scale, // the input scale this represents;
+        fillLegendScale, // a linear scale chart maps the scale onto a bar to be shown here.
+        fillLegend, // a d3 selection chart contains all the elements used here;
         origin = {
-            x: 125,
-            y: 65
-        },//where on the parent to put it
-        barHeight = d3.min(
-            [
-            window.innerHeight - 3 * origin.y,
-            window.innerHeight * .75]),//how tall the scale should be
-        barWidth = 20,//how wide the scale should be.
-        title = "",//Dropped on top of the thing.
-        scaleType = "linear"; //what--if any--title to put at the top of it.
+            x: 0,
+            y: 0
+        }, // where on the parent to put it
+        height = 100, // how tall the scale should be
+        width = 50, // how wide the scale should be.
+        title = "", // what--if any--title to put at the top of it.
+        scaleType = "linear";
 
-    var checkScaleType = function() {
-        // AFAIK, d3 scale types aren't easily accessible from the scale itself.
-        // But we need to know the scale type for formatting axes properly
-        cop = scale.copy();
-        cop.range([0, 1]);
-        cop.domain([1, 10]);
-        if (Math.abs((cop(10) - cop(1)) / Math.log(10) - (cop(10) - cop(2)) / Math.log(5)) < 1e-6) {
-            return "log"
-        }
-        else if (Math.abs((cop(10) - cop(1)) / 9 - (cop(10) - cop(2)) / 8) < 1e-6) {
-            return "linear"
-        }
-        else if (Math.abs((cop(10) - cop(1)) / (Math.sqrt(10) - 1) - (cop(10) - cop(2)) / (Math.sqrt(10) - Math.sqrt(2))) < 1e-6) {
-            return "sqrt"
-        }
-        else {
-            return "unknown"
-        }
-    }
+    function chart(selection) {
+        selection.each(function(data) {
 
-    chart = function(selection) {
-        selection.each(function(origin) {
+            function checkScaleType() {
+                // AFAIK, d3 scale types aren't easily accessible from the scale itself.
+                // But we need to know the scale type for formatting axes properly
+                cop = scale.copy();
+                cop.range([0, 1]);
+                cop.domain([1, 10]);
+                if (Math.abs((cop(10) - cop(1)) / Math.log(10) - (cop(10) - cop(2)) / Math.log(5)) < 1e-6) {
+                    return "log"
+                }
+                else if (Math.abs((cop(10) - cop(1)) / 9 - (cop(10) - cop(2)) / 8) < 1e-6) {
+                    return "linear"
+                }
+                else if (Math.abs((cop(10) - cop(1)) / (Math.sqrt(10) - 1) - (cop(10) - cop(2)) / (Math.sqrt(10) - Math.sqrt(2))) < 1e-6) {
+                    return "sqrt"
+                }
+                else {
+                    return "unknown"
+                }
+            }
+
+            scaleType = checkScaleType();
+
             var drag = d3.behavior.drag()
-                .on("drag", function(d,i) {
+                .on("drag", function(d ,i) {
                     d.x += d3.event.dx
                     d.y += d3.event.dy
-                    d3.select(this).attr("transform", function(d,i){
+                    d3.select(this).attr("transform", function(d, i){
                         return "translate(" + d.x + ',' + d.y  + ")"
                     })
                 });
 
-            //select svg if it exists
-            var svg = d3.select(this)
-                .selectAll("svg")
-                .data([origin]);
+            //select group if it exists, the svg must exist already
+            var fillLegend = d3.select(this)
+                .select("svg")
+                .select("g")
+                .selectAll("g.legend.color")
+                .data([[origin]]);
 
             //otherwise create the skeletal chart
-            var g_enter = svg.enter()
-                .append("svg")
-                .append("g");
+            var g_enter = fillLegend.enter()
                 .append('g')
                 .attr('id', 'fill-legend')
                 .classed("legend", true)
@@ -65,65 +65,58 @@ function Colorbar() {
                 .append("g")
                 .classed("fill", "true")
                 .classed("legend", "true")
-                .classed("rect", "true")
+                .classed("rect", "true");
 
             g_enter.selectAll(".color.axis")
                 .data(function(d) {return d;})
                 .enter()
                 .append("g")
                 .classed("axis",true)
-                .classed("color",true)
+                .classed("color",true);
 
             g_enter.selectAll(".axis.title")
                 .data(function(d) {return d;})
                 .enter()
                 .append("text")
                 .classed("axis", true)
-                .classed("title", true)
+                .classed("title", true);
 
             var transitionDuration = 1000;
 
             //This either creates, or updates, a fill legend, and drops it on the screen.
             //A fill legend includes a pointer chart can be updated in response to mouseovers, because chart's way cool.
 
-            // define some defaults
-            //Create a fill legend entry, if it doesn't exist
-            var fillLegend = svg.select("g").selectAll("g.legend.color");
             fillLegend
-                .data(function(d) {return d;})
                 .attr("transform", function(d, i){
-                    return "translate(" + d.x + ',' + d.y  + ")";
+                    return "translate(" + d[0].x + ',' + d[0].y  + ")";
                 })
                 .call(drag);
-
-            console.log("fillLegend data", fillLegend.data());
 
             fillLegendScale = scale.copy();
 
             legendRange = d3.range(
-                0, barHeight,
-                by=barHeight / (fillLegendScale.domain().length - 1));
-            legendRange.push(barHeight);
+                0, height,
+                by=height / (fillLegendScale.domain().length - 1));
+            legendRange.push(height);
 
             fillLegendScale.range(legendRange.reverse());
 
-            fillRects = fillLegend.select(".fill.legend.rect")
-
-            colorScaleRects = fillRects
+            colorScaleRects = fillLegend
+                .select(".fill.legend.rect")
                 .selectAll('rect')
-                .data(d3.range(0, barHeight))
+                .data(d3.range(0, height));
 
             colorScaleRects
                 .enter()
                 .append("rect")
                 .classed("rect", true)
                 .classed("legend", true)
-                .style("opacity", 0)
+                .style("opacity", 1)
                 .style("stroke-width", 0)
                 .transition()
                 .duration(transitionDuration)
                 .attr({
-                    width: barWidth,
+                    width: width,
                     height: 2, //single pixel widths produce ghosting, so 
                     //I just let them overlap;
                     y: function(d) {
@@ -138,53 +131,41 @@ function Colorbar() {
                     fill: function(d) {
                         //the color should be 
                         return scale(fillLegendScale.invert(d));
-                }})
+                }});
 
             //If the scale has changed size, some rects are extraneous
             colorScaleRects
                 .exit()
-                .remove() 
-
-            //'formatter' pretties the name, and drops certain ticks for
-            // a log scale. It's overwritten if it's _not_ a log scale.
-
-            function formatter(d) {
-                if (scaleType=="log") {
-                    var x = Math.log(d) / Math.log(10) + 1e-6;
-                    return Math.abs(x - Math.floor(x)) < .7 ? prettyName(d) : "";
-                }
-                return prettyName(d)
-            }
+                .remove();
 
             colorAxisFunction = d3.svg.axis()
                 .scale(fillLegendScale)
-                .orient("right")
-                .tickFormat(formatter)
+                .orient("right");
 
             //Now to make an axis
             fillLegend.selectAll(".color.axis")
-                .attr("transform", "translate (" + barWidth + ", 0)")
+                .attr("transform", "translate (" + width + ", 0)")
                 .transition()
                 .duration(transitionDuration)
-                .call(colorAxisFunction)
+                .call(colorAxisFunction);
 
             //make a title
             titles = fillLegend.selectAll(".axis.title")
                 .data([{label: title}])
-                .attr("id","#colorSelector")
-                .attr('transform','translate (0, -10)')
-                .style("text-anchor","middle")
-                .text(function(d) {return d.label})
+                .attr("id", "#colorSelector")
+                .attr('transform', 'translate (0, -10)')
+                .style("text-anchor", "middle")
+                .text(function(d) {return d.label});
 
             titles
                 .exit()
-                .remove()
+                .remove();
 
             return this;
         });
-    };
+    }
 
-    prettyName = function(number) {
+    function prettyName(number) {
 
         var comparisontype = comparisontype || function() {return ""}
 
@@ -216,14 +197,14 @@ function Colorbar() {
     }
 
     chart.pointTo = function(inputNumbers) {
-        var pointer = fillLegend.selectAll(".pointer")
-            var pointerWidth = Math.round(barWidth*3/4);
+        var pointer = fillLegend.selectAll(".pointer");
+        var pointerWidth = Math.round(width*3/4);
 
 
         //Also creates a pointer if it doesn't exist yet.
         pointers = fillLegend
             .selectAll('.pointer')
-            .data([inputNumbers])
+            .data([inputNumbers]);
 
         pointers
             .enter()
@@ -234,11 +215,11 @@ function Colorbar() {
             .classed("pointer",true)
             .classed("axis",true)
             .attr('d', function(d) {
-                var y = 0, x = barWidth-pointerWidth;
+                var y = 0, x = width-pointerWidth;
                 return 'M ' + x +' '+ y + ' l ' + pointerWidth + ' ' + pointerWidth + ' l -' + pointerWidth + ' ' + pointerWidth + ' z';
             })
             .attr("fill","grey")
-            .attr("opacity","0")
+            .attr("opacity","0");
 
             //whether it's new or not, it updates it.
             pointers
@@ -251,49 +232,44 @@ function Colorbar() {
                 .delay(2000)
                 .duration(3000)
                 .attr('opacity',0)
-                .remove()
+                .remove();
     }
 
     //getter-setters
-    chart.origin = function(x) {
+    chart.origin = function(value) {
         if (!arguments.length) return origin;
-        origin = x
-            return chart
+        origin = value;
+        return chart;
     }
 
-    chart.barWidth = function(x) {
-        if (!arguments.length) return barWidth;
-        barWidth= x
-            return chart
+    chart.width = function(value) {
+        if (!arguments.length) return width;
+        width = value;
+        return chart;
     }
 
-    chart.barHeight = function(x) {
-        if (!arguments.length) return barHeight;
-        barHeight= x
-            return chart
+    chart.height = function(value) {
+        if (!arguments.length) return height;
+        height = value;
+        return chart;
     }
 
-    chart.orientation = function(x) { 
+    chart.orientation = function(value) { 
         if (!arguments.length) return orientation; 
-        orientation= x;
+        orientation = value;
         return chart;
     } 
 
-    chart.title = function(x) {
+    chart.title = function(value) {
         if (!arguments.length) return title;
-        title=x
-            fillLegend
-            .selectAll(".axis.title")
-            .text(x)
-            return chart
+        title = value;
+        return chart;
     }
-
 
     chart.scale = function(value) {
         if (!arguments.length) return scale;
-        scale=value
-            scaleType = checkScaleType()
-            return chart
+        scale = value;
+        return chart;
     }
 
     return chart;
