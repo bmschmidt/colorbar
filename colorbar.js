@@ -1,8 +1,8 @@
 function Colorbar() {
-    var that = {};
+    var chart = {};
     var scale, //the input scale this represents
-        fillLegendScale, //a linear scale that maps the scale onto a bar to be shown here.
-        fillLegend,//a d3 selection that contains all the elements used here;
+        fillLegendScale, //a linear scale chart maps the scale onto a bar to be shown here.
+        fillLegend,//a d3 selection chart contains all the elements used here;
         parentSVG = d3.select("svg"),// What svg contains this; currently hard coded.
         origin = [125,65],//where on the parent to put it
         barHeight = d3.min([window.innerHeight - 3*origin[1],window.innerHeight*.75]),//how tall the scale should be
@@ -54,7 +54,7 @@ function Colorbar() {
 
         var transitionDuration = 1000
             //This either creates, or updates, a fill legend, and drops it on the screen.
-            //A fill legend includes a pointer that can be updated in response to mouseovers, because that's way cool.
+            //A fill legend includes a pointer chart can be updated in response to mouseovers, because chart's way cool.
 
             // define some defaults
             //Create a fill legend entry, if it doesn't exist
@@ -259,50 +259,50 @@ function Colorbar() {
     }
 
     //getter-setters
-    that.origin = function(x) {
+    chart.origin = function(x) {
         if (!arguments.length) return origin;
         origin = x
-            return that
+            return chart
     }
 
-    that.barWidth = function(x) {
+    chart.barWidth = function(x) {
         if (!arguments.length) return barWidth;
         barWidth= x
-            return that
+            return chart
     }
 
-    that.barHeight = function(x) {
+    chart.barHeight = function(x) {
         if (!arguments.length) return barHeight;
         barHeight= x
-            return that
+            return chart
     }
 
-    that.orientation = function(x) { 
+    chart.orientation = function(x) { 
         if (!arguments.length) return orientation; 
         orientation= x;
-        return that;
+        return chart;
     } 
 
-    that.title = function(x) {
+    chart.title = function(x) {
         if (!arguments.length) return title;
         title=x
             fillLegend
             .selectAll(".axis.title")
             .text(x)
-            return that
+            return chart
     }
 
 
-    that.scale = function(value) {
+    chart.scale = function(value) {
         if (!arguments.length) return scale;
         scale=value
             scaleType = checkScaleType()
-            return that
+            return chart
     }
 
 
-    that.update = update
-        that.pointTo = pointTo
+    chart.update = update
+        chart.pointTo = pointTo
 
-        return that;
+        return chart;
 }
