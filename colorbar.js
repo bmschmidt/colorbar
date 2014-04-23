@@ -1,5 +1,4 @@
 function Colorbar() {
-    var chart = {};
     var scale, //the input scale this represents
         fillLegendScale, //a linear scale chart maps the scale onto a bar to be shown here.
         fillLegend,//a d3 selection chart contains all the elements used here;
@@ -10,56 +9,62 @@ function Colorbar() {
         title = "",//Dropped on top of the thing.
         scaleType = "linear"; //what--if any--title to put at the top of it.
 
-    var drag = d3.behavior.drag()
-        .on("drag", function(d,i) {
-            d.x += d3.event.dx
-            d.y += d3.event.dy
-            d3.select(this).attr("transform", function(d,i){
-                return "translate(" + d.x + ',' + d.y  + ")"
-            })
-        });
-
-    fillLegend = parentSVG
-        .selectAll("g.color.legend")
-        .data([{
-            "x":origin[0],"y":origin[1]}]);
-
-    fillLegend.enter()
-        .append('g')
-        .attr('id','fill-legend')
-        .classed("legend",true)
-        .classed("color",true)
-        .attr("transform", function(d,i){
-            d.x = origin[0]
-            console.log("appending a fill legend")
-            return "translate(" + d.x + ',' + d.y  + ")"
-        })
-    .call(drag)
-
-
-        var checkScaleType = function() {
-            // AFAIK, d3 scale types aren't easily accessible from the scale itself.
-            // But we need to know the scale type for formatting axes properly
-            cop = scale.copy();
-            cop.range([0, 1])
-                cop.domain([1, 10])
-                if (Math.abs((cop(10) - cop(1)) / Math.log(10/1) - (cop(10) - cop(2)) / Math.log(10/2)) < 1e-6) {return "log"}
-                else if (Math.abs((cop(10) - cop(1)) / 9 - (cop(10) - cop(2)) / 8) < 1e-6) {return "linear"}
-                else if (Math.abs((cop(10) - cop(1)) / (Math.sqrt(10) - 1) - (cop(10) - cop(2)) / (Math.sqrt(10) - Math.sqrt(2))) < 1e-6) {return "sqrt"}
-
-
+    var checkScaleType = function() {
+        // AFAIK, d3 scale types aren't easily accessible from the scale itself.
+        // But we need to know the scale type for formatting axes properly
+        cop = scale.copy();
+        cop.range([0, 1]);
+        cop.domain([1, 10]);
+        if (Math.abs((cop(10) - cop(1)) / Math.log(10) - (cop(10) - cop(2)) / Math.log(5)) < 1e-6) {
+            return "log"
         }
+        else if (Math.abs((cop(10) - cop(1)) / 9 - (cop(10) - cop(2)) / 8) < 1e-6) {
+            return "linear"
+        }
+        else if (Math.abs((cop(10) - cop(1)) / (Math.sqrt(10) - 1) - (cop(10) - cop(2)) / (Math.sqrt(10) - Math.sqrt(2))) < 1e-6) {
+            return "sqrt"
+        }
+        else {
+            return "unknown"
+        }
+    }
 
-    var update = function() {
+    chart = function(selection) {
+        selection.each(function(data) {
+            var drag = d3.behavior.drag()
+                .on("drag", function(d,i) {
+                    d.x += d3.event.dx
+                    d.y += d3.event.dy
+                    d3.select(this).attr("transform", function(d,i){
+                        return "translate(" + d.x + ',' + d.y  + ")"
+                    })
+                });
 
-        var transitionDuration = 1000
-            //This either creates, or updates, a fill legend, and drops it on the screen.
-            //A fill legend includes a pointer chart can be updated in response to mouseovers, because chart's way cool.
+            fillLegend = parentSVG
+                .selectAll("g.color.legend")
+                .data([{
+                    "x":origin[0],"y":origin[1]}]);
 
-            // define some defaults
-            //Create a fill legend entry, if it doesn't exist
+            fillLegend.enter()
+                .append('g')
+                .attr('id', 'fill-legend')
+                .classed("legend", true)
+                .classed("color", true)
+                .attr("transform", function(d, i){
+                    d.x = origin[0]
+                    console.log("appending a fill legend")
+                    return "translate(" + d.x + ',' + d.y  + ")"
+                })
+                .call(drag)
 
-            fillLegendScale = scale.copy()
+            var transitionDuration = 1000;
+                //This either creates, or updates, a fill legend, and drops it on the screen.
+                //A fill legend includes a pointer chart can be updated in response to mouseovers, because chart's way cool.
+
+                // define some defaults
+                //Create a fill legend entry, if it doesn't exist
+
+            fillLegendScale = scale.copy();
 
             legendRange = d3.range(0,barHeight,by=barHeight/(fillLegendScale.domain().length-1))
             legendRange.push(barHeight)
@@ -76,57 +81,57 @@ function Colorbar() {
             //rather than stretching the scale out.
 
             colorScaleRects
-            .enter()
-            .append("rect")
-            .classed("rect",true)
-            .classed("legend",true)
-            .style("opacity",0)
-            .style("stroke-width",0)
-            .attr({
-                width: barWidth,
-            height : 2, //single pixel widths produce ghosting, so 
-            //I just let them overlap;
-            y: function(d) {
-                return d
-            },
-            stroke: function(d) {
-                //the color should be 
-                return scale(fillLegendScale.invert(d));
-            }
-            })
-        .style(  { fill: function(d) {
-            //the color should be 
-            return scale(fillLegendScale.invert(d));
-        }})
+                .enter()
+                .append("rect")
+                .classed("rect",true)
+                .classed("legend",true)
+                .style("opacity",0)
+                .style("stroke-width",0)
+                .attr({
+                    width: barWidth,
+                    height : 2, //single pixel widths produce ghosting, so 
+                    //I just let them overlap;
+                    y: function(d) {
+                        return d
+                    },
+                    stroke: function(d) {
+                        //the color should be 
+                        return scale(fillLegendScale.invert(d));
+                    }
+                })
+                .style({
+                    fill: function(d) {
+                        //the color should be 
+                        return scale(fillLegendScale.invert(d));
+                }})
 
-        //update attributes of all of them.
-        colorScaleRects
-            .transition()
-            .duration(transitionDuration)
-            .attr({
-                width: barWidth,
-            height : 2,
-            y: function(d) {
-                return d
-            },
-            fill: function(d) {
-                //the color should be 
-                return scale(fillLegendScale.invert(d));
-            }
-            })
-        .style("opacity",1)
-            .style(  {              fill: function(d) {
-                //the color should be 
-                return scale(fillLegendScale.invert(d));
-            }});
+            //update attributes of all of them.
+            colorScaleRects
+                .transition()
+                .duration(transitionDuration)
+                .attr({
+                    width: barWidth,
+                    height : 2,
+                    y: function(d) {
+                        return d
+                    },
+                    fill: function(d) {
+                        //the color should be 
+                        return scale(fillLegendScale.invert(d));
+                    }})
+                .style("opacity",1)
+                    .style({fill: function(d) {
+                        //the color should be 
+                        return scale(fillLegendScale.invert(d));
+                    }});
 
-        //If the scale has changed size, some rects are extraneous
-        colorScaleRects
-            .exit()
-            .remove() 
+            //If the scale has changed size, some rects are extraneous
+            colorScaleRects
+                .exit()
+                .remove() 
 
-            //'formatter' pretties the name, and drops certain ticks for
-            // a log scale. It's overwritten if it's _not_ a log scale.
+                //'formatter' pretties the name, and drops certain ticks for
+                // a log scale. It's overwritten if it's _not_ a log scale.
 
             function formatter(d) {
                 if (scaleType=="log") {
@@ -136,56 +141,58 @@ function Colorbar() {
                 return prettyName(d)
             }
 
-
-        //Now to make an axis
-        //create if doesn't exist.
-        colorAxis = fillLegend.selectAll(".color.axis").data([1])
+            //Now to make an axis
+            //create if doesn't exist.
+            colorAxis = fillLegend.selectAll(".color.axis").data([1])
             colorAxis.enter()
-            .append("g")
-            .attr("id","color-axis")
-            .classed("axis",true)
-            .classed("color",true)
-            .attr("transform","translate (" + (barWidth) + ",0)")
+                .append("g")
+                .attr("id","color-axis")
+                .classed("axis",true)
+                .classed("color",true)
+                .attr("transform","translate (" + (barWidth) + ",0)")
 
 
             colorAxisFunction = d3.svg.axis()
-            .scale(fillLegendScale)
-            .orient("right")
-            .tickFormat(formatter)
+                .scale(fillLegendScale)
+                .orient("right")
+                .tickFormat(formatter)
 
             //Add bit to change the legend type
-
             d3.select("#fillLegendScale").remove()
 
             fillLegend
-            .append("text")
-            .attr("id","fillLegendScale")
-            .text("")
-            .attr("transform","translate(0," + (barHeight + 25) + ")")
+                .append("text")
+                .attr("id","fillLegendScale")
+                .text("")
+                .attr("transform","translate(0," + (barHeight + 25) + ")")
 
             //transition the axis
             colorAxis
-            .transition()
-            .duration(transitionDuration)
-            .call(colorAxisFunction)
+                .transition()
+                .duration(transitionDuration)
+                .call(colorAxisFunction)
 
             //make a title
-
-            titles = fillLegend.selectAll(".axis.title").data([{"label":title}])
-
-            titles.enter().append("text")
-
+            titles = fillLegend
+                .selectAll(".axis.title")
+                .data([{"label": title}])
             titles
-            .attr("id","#colorSelector")
-            .attr('transform','translate (0,-10)')
-            .classed("axis",true)
-            .classed("title",true)
-            .style("text-anchor","middle")
-            .text(function(d) {return d.label})
+                .enter()
+                .append("text")
+            titles
+                .attr("id","#colorSelector")
+                .attr('transform','translate (0,-10)')
+                .classed("axis",true)
+                .classed("title",true)
+                .style("text-anchor","middle")
+                .text(function(d) {return d.label})
+            titles
+                .exit()
+                .remove()
 
-            titles.exit().remove()
             return this;
-    }
+        });
+    };
 
     prettyName =  function(number) {
 
@@ -218,7 +225,7 @@ function Colorbar() {
         }
     }
 
-    pointTo=function(inputNumbers) {
+    pointTo = function(inputNumbers) {
         var pointer = fillLegend.selectAll(".pointer")
             var pointerWidth = Math.round(barWidth*3/4);
 
@@ -228,34 +235,33 @@ function Colorbar() {
             .selectAll('.pointer')
             .data([inputNumbers])
 
-            pointers
+        pointers
             .enter()
             .append('path')
             .attr('transform',"translate(0," + (
-                            fillLegendScale(inputNumbers) - pointerWidth)+ ')'
-                 )
+                fillLegendScale(inputNumbers) - pointerWidth)+ ')'
+                )
             .classed("pointer",true)
             .classed("axis",true)
             .attr('d', function(d) {
                 var y = 0, x = barWidth-pointerWidth;
                 return 'M ' + x +' '+ y + ' l ' + pointerWidth + ' ' + pointerWidth + ' l -' + pointerWidth + ' ' + pointerWidth + ' z';
             })
-        .attr("fill","grey")
+            .attr("fill","grey")
             .attr("opacity","0")
-
 
             //whether it's new or not, it updates it.
             pointers
-            .transition()
-            .duration(1000)
-            .attr('opacity',1)
-            .attr('transform',"translate(0," + (fillLegendScale(inputNumbers) -14)+ ')')
-            //and then it fades the pointer out over 5 seconds.
-            .transition()
-            .delay(2000)
-            .duration(3000)
-            .attr('opacity',0)
-            .remove()
+                .transition()
+                .duration(1000)
+                .attr('opacity',1)
+                .attr('transform',"translate(0," + (fillLegendScale(inputNumbers) -14)+ ')')
+                //and then it fades the pointer out over 5 seconds.
+                .transition()
+                .delay(2000)
+                .duration(3000)
+                .attr('opacity',0)
+                .remove()
     }
 
     //getter-setters
@@ -300,9 +306,7 @@ function Colorbar() {
             return chart
     }
 
+    chart.pointTo = pointTo
 
-    chart.update = update
-        chart.pointTo = pointTo
-
-        return chart;
+    return chart;
 }
