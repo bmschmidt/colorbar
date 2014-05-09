@@ -1,14 +1,13 @@
 function Colorbar() {
     var scale, // the input scale this represents;
-        fillLegendScale, // a linear scale chart maps the scale onto a bar to be shown here.
-        fillLegend, // a d3 selection chart contains all the elements used here;
+        orient = "vertical"
         origin = {
             x: 0,
             y: 0
         }, // where on the parent to put it
-        height = 100, // how tall the scale should be
-        width = 50, // how wide the scale should be.
-        title = "", // what--if any--title to put at the top of it.
+        length = 100, // how long is the bar
+        thickness = 50, // how thick is the bar
+        title = "", // title for the colorbar
         scaleType = "linear";
 
     function chart(selection) {
@@ -40,89 +39,102 @@ function Colorbar() {
                 .on("drag", function(d ,i) {
                     d.x += d3.event.dx
                     d.y += d3.event.dy
-                    d3.select(this).attr("transform", function(d, i){
+                    d3.select(this).attr("transform", function(d, i) {
                         return "translate(" + d.x + ',' + d.y  + ")"
                     })
                 });
 
-            //select the svg if it exists
+            var thickness_attr;
+            var length_attr;
+            var axis_orient;
+            var position_variable;
+            var axis_transform;
+            if (orient === "horizontal") {
+                thickness_attr = "height"
+                length_attr = "width"
+                axis_orient = "bottom"
+                position_variable = "x"
+                axis_transform = "translate (" + thickness + ", 0)"
+            }
+            else {
+                thickness_attr = "width"
+                length_attr = "height"
+                axis_orient = "right"
+                position_variable = "y"
+                axis_transform = "translate (0," + thickness + ")"
+            }
+
+            // select the svg if it exists
             var svg = d3.select(this)
                 .selectAll("svg")
                 .data([origin]);
 
-            //otherwise create the skeletal chart
+            // otherwise create the skeletal chart
             var g_enter = svg.enter()
                 .append("svg")
-                .attr("width", origin.x)
-                .attr("height", height)
+                .attr(thickness_attr, origin.x)
+                .attr(length_attr, length)
                 .append("g")
                 .classed("colorbar", true);
-
             g_enter.append("g")
                 .classed("legend", true)
                 .classed("rect", true);
-
             g_enter.append("g")
                 .classed("axis", true)
                 .classed("color", true);
 
             var transitionDuration = 1000;
 
-            //This either creates, or updates, a fill legend, and drops it on the screen.
-            //A fill legend includes a pointer chart can be updated in response to mouseovers, because chart's way cool.
+            // This either creates, or updates, a fill legend, and drops it
+            // on the screen. A fill legend includes a pointer chart can be
+            // updated in response to mouseovers, because chart's way cool.
 
             var fillLegend = svg.select("g")
                 .attr("transform", function(d, i){
-                    return "translate(" + d.x/2 + ',' + d.y  + ")";
+                    return "translate(" + d.x + ',' + d.y  + ")";
                 })
                 .call(drag);
 
-            fillLegendScale = scale.copy();
+            var fillLegendScale = scale.copy();
 
             legendRange = d3.range(
-                0, height,
-                by=height / (fillLegendScale.domain().length - 1));
-            legendRange.push(height);
+                0, length,
+                by=length / (fillLegendScale.domain().length - 1));
+            legendRange.push(length);
 
             fillLegendScale.range(legendRange.reverse());
 
             colorScaleRects = fillLegend
                 .select(".legend.rect")
                 .selectAll('rect')
-                .data(d3.range(0, height));
+                .data(d3.range(0, length));
 
             colorScaleRects
                 .enter()
                 .append("rect")
                 .classed("legend", true)
                 .style("opacity", 1)
-                .style("stroke-width", 0)
+                .style("stroke-thickness", 0)
                 .transition()
                 .duration(transitionDuration)
-                .attr({
-                    width: width,
-                    height: 2, //single pixel widths produce ghosting, so 
-                    //I just let them overlap;
-                    y: function(d) {
-                        return d
-                    },
-                })
+                .attr(thickness_attr, thickness)
+                .attr(length_attr, 2) // single pixel thickness produces ghosting
+                .attr(position_variable, function(d) {return d;})
                 .style("fill", function(d) {
                         return scale(fillLegendScale.invert(d));
                 });
 
-            //If the scale has changed size, some rects are extraneous
             colorScaleRects
                 .exit()
                 .remove();
 
             colorAxisFunction = d3.svg.axis()
                 .scale(fillLegendScale)
-                .orient("right");
+                .orient(axis_orient);
 
-            //Now to make an axis
+            //Now make an axis
             fillLegend.selectAll(".color.axis")
-                .attr("transform", "translate (" + width + ", 0)")
+                .attr("transform", axis_transform)
                 .transition()
                 .duration(transitionDuration)
                 .call(colorAxisFunction);
@@ -176,7 +188,7 @@ function Colorbar() {
 
     chart.pointTo = function(inputNumbers) {
         var pointer = fillLegend.selectAll(".pointer");
-        var pointerWidth = Math.round(width*3/4);
+        var pointerWidth = Math.round(thickness*3/4);
 
 
         //Also creates a pointer if it doesn't exist yet.
@@ -193,7 +205,7 @@ function Colorbar() {
             .classed("pointer",true)
             .classed("axis",true)
             .attr('d', function(d) {
-                var y = 0, x = width-pointerWidth;
+                var y = 0, x = thickness-pointerWidth;
                 return 'M ' + x +' '+ y + ' l ' + pointerWidth + ' ' + pointerWidth + ' l -' + pointerWidth + ' ' + pointerWidth + ' z';
             })
             .attr("fill","grey")
@@ -220,21 +232,21 @@ function Colorbar() {
         return chart;
     }
 
-    chart.width = function(value) {
-        if (!arguments.length) return width;
-        width = value;
+    chart.thickness = function(value) {
+        if (!arguments.length) return thickness;
+        thickness = value;
         return chart;
     }
 
-    chart.height = function(value) {
-        if (!arguments.length) return height;
-        height = value;
+    chart.length = function(value) {
+        if (!arguments.length) return length;
+        length = value;
         return chart;
     }
 
-    chart.orientation = function(value) { 
-        if (!arguments.length) return orientation; 
-        orientation = value;
+    chart.scaleation = function(value) { 
+        if (!arguments.length) return scaleation; 
+        scaleation = value;
         return chart;
     } 
 
@@ -247,6 +259,16 @@ function Colorbar() {
     chart.scale = function(value) {
         if (!arguments.length) return scale;
         scale = value;
+        return chart;
+    }
+
+    chart.orient = function(value) {
+        if (!arguments.length) return orient;
+        if value is "vertical" or value is "horizontal"
+            orient = value
+        else
+            console.warn "orient can be only vertical or horizontal, not", value
+        orient = value;
         return chart;
     }
 
