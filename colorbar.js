@@ -45,50 +45,35 @@ function Colorbar() {
                     })
                 });
 
-            //select group if it exists, the svg must exist already
-            var fillLegend = d3.select(this)
-                .select("svg")
-                .select("g")
-                .selectAll("g.legend.color")
-                .data([[origin]]);
+            //select the svg if it exists
+            var svg = d3.select(this)
+                .selectAll("svg")
+                .data([origin]);
 
             //otherwise create the skeletal chart
-            var g_enter = fillLegend.enter()
-                .append('g')
-                .attr('id', 'fill-legend')
+            var g_enter = svg.enter()
+                .append("svg")
+                .attr("width", origin.x)
+                .attr("height", height)
+                .append("g")
+                .classed("colorbar", true);
+
+            g_enter.append("g")
                 .classed("legend", true)
-                .classed("color", true);
+                .classed("rect", true);
 
-            g_enter.selectAll(".fill.legend.rect")
-                .data(function(d) {return d;})
-                .enter()
-                .append("g")
-                .classed("fill", "true")
-                .classed("legend", "true")
-                .classed("rect", "true");
-
-            g_enter.selectAll(".color.axis")
-                .data(function(d) {return d;})
-                .enter()
-                .append("g")
-                .classed("axis",true)
-                .classed("color",true);
-
-            g_enter.selectAll(".axis.title")
-                .data(function(d) {return d;})
-                .enter()
-                .append("text")
+            g_enter.append("g")
                 .classed("axis", true)
-                .classed("title", true);
+                .classed("color", true);
 
             var transitionDuration = 1000;
 
             //This either creates, or updates, a fill legend, and drops it on the screen.
             //A fill legend includes a pointer chart can be updated in response to mouseovers, because chart's way cool.
 
-            fillLegend
+            var fillLegend = svg.select("g")
                 .attr("transform", function(d, i){
-                    return "translate(" + d[0].x + ',' + d[0].y  + ")";
+                    return "translate(" + d.x/2 + ',' + d.y  + ")";
                 })
                 .call(drag);
 
@@ -102,14 +87,13 @@ function Colorbar() {
             fillLegendScale.range(legendRange.reverse());
 
             colorScaleRects = fillLegend
-                .select(".fill.legend.rect")
+                .select(".legend.rect")
                 .selectAll('rect')
                 .data(d3.range(0, height));
 
             colorScaleRects
                 .enter()
                 .append("rect")
-                .classed("rect", true)
                 .classed("legend", true)
                 .style("opacity", 1)
                 .style("stroke-width", 0)
@@ -122,16 +106,10 @@ function Colorbar() {
                     y: function(d) {
                         return d
                     },
-                    stroke: function(d) {
-                        //the color should be 
-                        return scale(fillLegendScale.invert(d));
-                    }
                 })
-                .style({
-                    fill: function(d) {
-                        //the color should be 
+                .style("fill", function(d) {
                         return scale(fillLegendScale.invert(d));
-                }});
+                });
 
             //If the scale has changed size, some rects are extraneous
             colorScaleRects
