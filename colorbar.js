@@ -72,7 +72,7 @@ function Colorbar() {
             // otherwise create the skeletal chart
             var g_enter = svg.enter()
                 .append("svg")
-                .attr(thickness_attr, origin.x)
+                .attr(thickness_attr, thickness)
                 .attr(length_attr, length)
                 .append("g")
                 .classed("colorbar", true);
@@ -238,17 +238,11 @@ function Colorbar() {
         return chart;
     }
 
-    chart.length = function(value) {
+    chart.barlength = function(value) {
         if (!arguments.length) return length;
         length = value;
         return chart;
     }
-
-    chart.scaleation = function(value) { 
-        if (!arguments.length) return scaleation; 
-        scaleation = value;
-        return chart;
-    } 
 
     chart.title = function(value) {
         if (!arguments.length) return title;
@@ -264,10 +258,10 @@ function Colorbar() {
 
     chart.orient = function(value) {
         if (!arguments.length) return orient;
-        if value is "vertical" or value is "horizontal"
-            orient = value
+        if (value === "vertical" || value === "horizontal")
+            orient = value;
         else
-            console.warn "orient can be only vertical or horizontal, not", value
+            console.warn("orient can be only vertical or horizontal, not", value);
         orient = value;
         return chart;
     }
