@@ -1,12 +1,15 @@
 function Colorbar() {
     var scale, // the input scale this represents;
-        orient = "vertical"
+        margin = {top: 20, right: 30, bottom: 20, left: 0}
+        orient = "vertical",
         origin = {
             x: 0,
             y: 0
         }, // where on the parent to put it
-        length = 100, // how long is the bar
+        barlength = 100, // how long is the bar
         thickness = 50, // how thick is the bar
+        image_thickness = 200, // size of image along the direction of the bar thickness
+        image_length = 200, // size of image along the direction of the bar length
         title = "", // title for the colorbar
         scaleType = "linear";
 
@@ -50,18 +53,19 @@ function Colorbar() {
             var position_variable;
             var axis_transform;
             if (orient === "horizontal") {
+                [margin.top, margin.bottom, margin.left, margin.right] = [margin.left, margin.right, margin.top, margin.bottom]
                 thickness_attr = "height"
                 length_attr = "width"
                 axis_orient = "bottom"
                 position_variable = "x"
-                axis_transform = "translate (" + thickness + ", 0)"
+                axis_transform = "translate (0," + thickness + ")"
             }
             else {
                 thickness_attr = "width"
                 length_attr = "height"
                 axis_orient = "right"
                 position_variable = "y"
-                axis_transform = "translate (0," + thickness + ")"
+                axis_transform = "translate (" + thickness + "," + 0 + ")"
             }
 
             // select the svg if it exists
@@ -72,8 +76,8 @@ function Colorbar() {
             // otherwise create the skeletal chart
             var g_enter = svg.enter()
                 .append("svg")
-                .attr(thickness_attr, thickness)
-                .attr(length_attr, length)
+                .attr(thickness_attr, image_thickness + thickness + margin.left + margin.right + 30)
+                .attr(length_attr, image_length + margin.top + margin.bottom + 10)
                 .append("g")
                 .classed("colorbar", true);
             g_enter.append("g")
@@ -91,23 +95,23 @@ function Colorbar() {
 
             var fillLegend = svg.select("g")
                 .attr("transform", function(d, i){
-                    return "translate(" + d.x + ',' + d.y  + ")";
+                    return "translate(" + d.x + ',' + d.y + ")";
                 })
                 .call(drag);
 
             var fillLegendScale = scale.copy();
 
             legendRange = d3.range(
-                0, length,
-                by=length / (fillLegendScale.domain().length - 1));
-            legendRange.push(length);
+                0, barlength,
+                by=barlength / (fillLegendScale.domain().length - 1));
+            legendRange.push(barlength);
 
             fillLegendScale.range(legendRange.reverse());
 
             colorScaleRects = fillLegend
                 .select(".legend.rect")
                 .selectAll('rect')
-                .data(d3.range(0, length));
+                .data(d3.range(0, barlength));
 
             colorScaleRects
                 .enter()
@@ -232,6 +236,24 @@ function Colorbar() {
         return chart;
     }
 
+    chart.margin = function(value) {
+        if (!arguments.length) return margin;
+        margin = value;
+        return chart;
+    }
+
+    chart.image_thickness = function(value) {
+        if (!arguments.length) return image_thickness;
+        image_thickness = value;
+        return chart;
+    }
+
+    chart.image_length = function(value) {
+        if (!arguments.length) return image_length;
+        image_length = value;
+        return chart;
+    }
+
     chart.thickness = function(value) {
         if (!arguments.length) return thickness;
         thickness = value;
@@ -239,8 +261,8 @@ function Colorbar() {
     }
 
     chart.barlength = function(value) {
-        if (!arguments.length) return length;
-        length = value;
+        if (!arguments.length) return barlength;
+        barlength = value;
         return chart;
     }
 
