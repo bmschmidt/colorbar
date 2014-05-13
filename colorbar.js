@@ -76,8 +76,6 @@ function Colorbar() {
             // otherwise create the skeletal chart
             var g_enter = svg.enter()
                 .append("svg")
-                .attr(thickness_attr, image_thickness + thickness + margin.left + margin.right + 30)
-                .attr(length_attr, image_length + margin.top + margin.bottom + 10)
                 .append("g")
                 .classed("colorbar", true);
             g_enter.append("g")
@@ -86,6 +84,10 @@ function Colorbar() {
             g_enter.append("g")
                 .classed("axis", true)
                 .classed("color", true);
+
+            svg
+                .attr(thickness_attr, image_thickness + thickness + margin.left + margin.right + 30)
+                .attr(length_attr, image_length + margin.top + margin.bottom + 10);
 
             var transitionDuration = 1000;
 
