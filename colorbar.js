@@ -8,8 +8,6 @@ function Colorbar() {
         }, // where on the parent to put it
         barlength = 100, // how long is the bar
         thickness = 50, // how thick is the bar
-        image_thickness = 200, // size of image along the direction of the bar thickness
-        image_length = 200, // size of image along the direction of the bar length
         title = "", // title for the colorbar
         scaleType = "linear";
 
@@ -70,12 +68,13 @@ function Colorbar() {
 
             // select the svg if it exists
             var svg = d3.select(this)
-                .selectAll("svg")
+                .selectAll("svg.colorbar")
                 .data([origin]);
 
             // otherwise create the skeletal chart
             var g_enter = svg.enter()
                 .append("svg")
+                .classed("colorbar", true)
                 .append("g")
                 .classed("colorbar", true);
             g_enter.append("g")
@@ -86,8 +85,10 @@ function Colorbar() {
                 .classed("color", true);
 
             svg
-                .attr(thickness_attr, image_thickness + thickness + margin.left + margin.right + 30)
-                .attr(length_attr, image_length + margin.top + margin.bottom + 10);
+                .attr(thickness_attr, thickness + margin.left + margin.right)
+                .attr(length_attr, barlength + margin.top + margin.bottom)
+                .style("margin-top", origin.y + "px")
+                .style("margin-left", origin.x + "px");
 
             var transitionDuration = 1000;
 
@@ -95,12 +96,7 @@ function Colorbar() {
             // on the screen. A fill legend includes a pointer chart can be
             // updated in response to mouseovers, because chart's way cool.
 
-            var fillLegend = svg.select("g")
-                .attr("transform", function(d, i){
-                    return "translate(" + d.x + ',' + d.y + ")";
-                })
-                .call(drag);
-
+            var fillLegend = svg.select("g");
             var fillLegendScale = scale.copy();
 
             legendRange = d3.range(
@@ -241,18 +237,6 @@ function Colorbar() {
     chart.margin = function(value) {
         if (!arguments.length) return margin;
         margin = value;
-        return chart;
-    }
-
-    chart.image_thickness = function(value) {
-        if (!arguments.length) return image_thickness;
-        image_thickness = value;
-        return chart;
-    }
-
-    chart.image_length = function(value) {
-        if (!arguments.length) return image_length;
-        image_length = value;
         return chart;
     }
 
