@@ -1,6 +1,6 @@
 function Colorbar() {
     var scale, // the input scale this represents;
-        margin = {top: 20, right: 30, bottom: 20, left: 0}
+        margin = {top: 20, right: 30, bottom: 30, left: 0}
         orient = "vertical",
         origin = {
             x: 0,
@@ -35,15 +35,6 @@ function Colorbar() {
             }
 
             scaleType = checkScaleType();
-
-            var drag = d3.behavior.drag()
-                .on("drag", function(d ,i) {
-                    d.x += d3.event.dx
-                    d.y += d3.event.dy
-                    d3.select(this).attr("transform", function(d, i) {
-                        return "translate(" + d.x + ',' + d.y  + ")"
-                    })
-                });
 
             var thickness_attr;
             var length_attr;
@@ -87,8 +78,8 @@ function Colorbar() {
             svg
                 .attr(thickness_attr, thickness + margin.left + margin.right)
                 .attr(length_attr, barlength + margin.top + margin.bottom)
-                .style("margin-top", origin.y + "px")
-                .style("margin-left", origin.x + "px");
+                .style("margin-top", origin.y - margin.top + "px")
+                .style("margin-left", origin.x - margin.left + "px");
 
             var transitionDuration = 1000;
 
@@ -96,7 +87,8 @@ function Colorbar() {
             // on the screen. A fill legend includes a pointer chart can be
             // updated in response to mouseovers, because chart's way cool.
 
-            var fillLegend = svg.select("g");
+            var fillLegend = svg.select("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
             var fillLegendScale = scale.copy();
 
             legendRange = d3.range(
