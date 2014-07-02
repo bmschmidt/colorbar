@@ -20,7 +20,7 @@ stroke-width:0px;
 }
 
 circle:hover {
-stroke-width:1px;
+stroke-width:2px;
 }
 </style>
 
@@ -102,11 +102,21 @@ d3.selectAll("button").on("click",function(d) {
 
 //OK, now the actual colorbar stuff:
 
-colorbar = Colorbar().scale(fillings).barHeight(500).title("Hover to update the pointer")
-colorbar.update()
+
+colorbar = Colorbar()
+    .origin([15,60])
+    .scale(fillings).barlength(300)
+    .title("Hover to update the pointer")
+
+console.log("plop")
+
+
+plop = d3.selectAll("svg").append("g").attr("id","colorbar").call(colorbar)
 
 circles
-    .on("mouseover",function(d) {colorbar.pointTo(d[whichValue])})
+  .on("mouseover",function(d) {plop.pointTo(d[whichValue])})
 
 
 </script>
+
+<svg width=1000 height=1000></svg>
