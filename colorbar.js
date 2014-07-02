@@ -1,17 +1,61 @@
 function Colorbar() {
     var scale, // the input scale this represents;
-        margin = {top: 20, right: 30, bottom: 30, left: 0}
-        orient = "vertical",
-        origin = {
-            x: 0,
-            y: 0
-        }, // where on the parent to put it
-        barlength = 100, // how long is the bar
-        thickness = 50, // how thick is the bar
-        title = "", // title for the colorbar
-        scaleType = "linear";
+    margin = {top: 20, right: 30, bottom: 30, left: 0}
+    orient = "vertical",
+
+    origin = {
+        x: 0,
+        y: 0
+    }, // where on the parent to put it
+    barlength = 100, // how long is the bar
+    thickness = 50, // how thick is the bar
+    title = "", // title for the colorbar
+    scaleType = "linear";
 
     function chart(selection) {
+        var fillLegend,
+        fillLegendScale;
+
+        selection.pointTo = function(inputNumbers) {
+            console.log(inputNumbers)
+            var pointer = fillLegend.selectAll(".pointer");
+            var pointerWidth = Math.round(thickness*3/4);
+
+
+            //Also creates a pointer if it doesn't exist yet.
+            pointers = fillLegend
+                .selectAll('.pointer')
+                .data([inputNumbers]);
+
+            pointers
+                .enter()
+                .append('path')
+                .attr('transform',"translate(0," + (
+                    fillLegendScale(inputNumbers) - pointerWidth)+ ')'
+                     )
+                .classed("pointer",true)
+                .classed("axis",true)
+                .attr('d', function(d) {
+                    var y = 0, x = thickness-pointerWidth;
+                    return 'M ' + x +' '+ y + ' l ' + pointerWidth + ' ' + pointerWidth + ' l -' + pointerWidth + ' ' + pointerWidth + ' z';
+                })
+                .attr("fill","grey")
+                .attr("opacity","0");
+
+            //whether it's new or not, it updates it.
+            pointers
+                .transition()
+                .duration(1000)
+                .attr('opacity',1)
+                .attr('transform',"translate(0," + (fillLegendScale(inputNumbers) -14)+ ')')
+            //and then it fades the pointer out over 5 seconds.
+                .transition()
+                .delay(2000)
+                .duration(3000)
+                .attr('opacity',0)
+                .remove();
+        }
+
         selection.each(function(data) {
 
             function checkScaleType() {
@@ -87,9 +131,9 @@ function Colorbar() {
             // on the screen. A fill legend includes a pointer chart can be
             // updated in response to mouseovers, because chart's way cool.
 
-            var fillLegend = svg.select("g")
+            fillLegend = svg.select("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-            var fillLegendScale = scale.copy();
+            fillLegendScale = scale.copy();
 
             legendRange = d3.range(
                 0, barlength,
@@ -107,16 +151,18 @@ function Colorbar() {
                 .enter()
                 .append("rect")
                 .classed("legend", true)
-                .style("opacity", 1)
+                .style("opacity", 0)
                 .style("stroke-thickness", 0)
+                .style("fill", function(d) {
+                    return scale(fillLegendScale.invert(d));
+                })
                 .transition()
                 .duration(transitionDuration)
+                .style("opacity", 1)
                 .attr(thickness_attr, thickness)
                 .attr(length_attr, 2) // single pixel thickness produces ghosting
                 .attr(position_variable, function(d) {return d;})
-                .style("fill", function(d) {
-                        return scale(fillLegendScale.invert(d));
-                });
+
 
             colorScaleRects
                 .exit()
@@ -155,20 +201,20 @@ function Colorbar() {
 
         if (comparisontype()!='comparison') {
             suffix = ''
-                switch(true) {
-                    case number>=1000000000:
-                        number = number/1000000000
-                            suffix = 'B'
-                            break;
-                    case number>=1000000:
-                        number = number/1000000
-                            suffix = 'M'
-                            break;
-                    case number>=1000:
-                        number = number/1000
-                            suffix = 'K'
-                            break;
-                }
+            switch(true) {
+            case number>=1000000000:
+                number = number/1000000000
+                suffix = 'B'
+                break;
+            case number>=1000000:
+                number = number/1000000
+                suffix = 'M'
+                break;
+            case number>=1000:
+                number = number/1000
+                suffix = 'K'
+                break;
+            }
             if (number < .1) {
                 return(Math.round(number*100)/100+suffix)
             }
@@ -180,44 +226,6 @@ function Colorbar() {
         }
     }
 
-    chart.pointTo = function(inputNumbers) {
-        var pointer = fillLegend.selectAll(".pointer");
-        var pointerWidth = Math.round(thickness*3/4);
-
-
-        //Also creates a pointer if it doesn't exist yet.
-        pointers = fillLegend
-            .selectAll('.pointer')
-            .data([inputNumbers]);
-
-        pointers
-            .enter()
-            .append('path')
-            .attr('transform',"translate(0," + (
-                fillLegendScale(inputNumbers) - pointerWidth)+ ')'
-                )
-            .classed("pointer",true)
-            .classed("axis",true)
-            .attr('d', function(d) {
-                var y = 0, x = thickness-pointerWidth;
-                return 'M ' + x +' '+ y + ' l ' + pointerWidth + ' ' + pointerWidth + ' l -' + pointerWidth + ' ' + pointerWidth + ' z';
-            })
-            .attr("fill","grey")
-            .attr("opacity","0");
-
-            //whether it's new or not, it updates it.
-            pointers
-                .transition()
-                .duration(1000)
-                .attr('opacity',1)
-                .attr('transform',"translate(0," + (fillLegendScale(inputNumbers) -14)+ ')')
-                //and then it fades the pointer out over 5 seconds.
-                .transition()
-                .delay(2000)
-                .duration(3000)
-                .attr('opacity',0)
-                .remove();
-    }
 
     //getter-setters
     chart.origin = function(value) {
