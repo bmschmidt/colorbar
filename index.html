@@ -97,6 +97,7 @@ d3.selectAll("button").on("click",function(d) {
     console.log(variable)
     whichValue = variable
     changeFillings()
+d3.select("#colorbar").call(colorbar);
     colorbar.scale(fillings).title("Hover to update the pointer").update()
 })
 
@@ -105,11 +106,8 @@ d3.selectAll("button").on("click",function(d) {
 
 colorbar = Colorbar()
     .origin([15,60])
-    .scale(fillings).barlength(300)
+    .scale(fillings).barlength(300).thickness(20)
     .title("Hover to update the pointer")
-
-console.log("plop")
-
 
 plop = d3.selectAll("svg").append("g").attr("id","colorbar").call(colorbar)
 
