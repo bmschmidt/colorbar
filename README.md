@@ -13,9 +13,11 @@ See example at http://benschmidt.org/colorbar
 
 ## Creation
 
-Build a colorbar by calling the colorbar function.
+Build a colorbar by calling the colorbar function on a D3 selection. (Normally, this would be a `g` element; creation is analogous to )
 
 For example:
+
+
 
 ```
 <script src="http://benschmidt.org/colorbar/colorbar.js"></script>
@@ -28,8 +30,10 @@ colorbar = Colorbar()
 	.scale(myScale)
 
 placeholder = "#colorbar-here"
+
 d3.select(placeholder)
     .call(colorbar)
+	
 </script>
 ```
 
