@@ -156,13 +156,17 @@ function Colorbar() {
                 .style("fill", function(d) {
                     return scale(fillLegendScale.invert(d));
                 })
+
+	    colorScaleRects
                 .transition()
                 .duration(transitionDuration)
                 .style("opacity", 1)
                 .attr(thickness_attr, thickness)
                 .attr(length_attr, 2) // single pixel thickness produces ghosting
                 .attr(position_variable, function(d) {return d;})
-
+                .style("fill", function(d) {
+                    return scale(fillLegendScale.invert(d));
+                })
 
             colorScaleRects
                 .exit()
