@@ -86,7 +86,7 @@ function Colorbar() {
             var position_variable;
             var axis_transform;
             if (orient === "horizontal") {
-		tmp = [margin.left, margin.right, margin.top, margin.bottom]
+		var tmp = [margin.left, margin.right, margin.top, margin.bottom]
 		margin.top = tmp[0]
 		margin.bottom = tmp[1]
 		margin.left = tmp[2]
