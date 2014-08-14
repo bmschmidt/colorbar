@@ -13,7 +13,7 @@ See example at http://benschmidt.org/colorbar
 
 ## Creation
 
-Build a colorbar by calling the colorbar function on a D3 selection. (Normally, this would be a `g` element; creation is analogous to )
+Build a colorbar by calling the colorbar function on a D3 selection. (Normally, this would be a `g` element; creation is analogous to creating an axis.)
 
 For example:
 
@@ -31,7 +31,7 @@ colorbar = Colorbar()
 
 placeholder = "#colorbar-here"
 
-d3.select(placeholder)
+pointer = d3.select(placeholder)
     .call(colorbar)
 	
 </script>
@@ -41,10 +41,10 @@ d3.select(placeholder)
 
 ## Update
 
-A temporary pointer can be adjusted on the colorbar using a colorbar object's pointTo method.
+The colorbar call returns an object that can be used to change the pointer location using a "pointTo" method.
 
 ```
-colorbar.pointTo(26)
+pointer.pointTo(26)
 ```
 
 The pointer will drop to the appropriate place, and then fade away after five seconds.
@@ -57,17 +57,17 @@ var elements = d3.selectAll("circle").data(whatever)
 elements.style("fill",function(d) {return myScale(d.colorDatum)})
 
 //The sort of mouseover event you want:
-elements.on("mouseover",function(d) {colorbar.pointTo(d.colorDatum)})
+elements.on("mouseover",function(d) {pointer.pointTo(d.colorDatum)})
 
 ```
 
 ## General methods:
 
-### colorbar.update()
+### selection.call(colorbar)
 
-Draws or redraws the scale (if necessary) based on the current title, scale, etc.
+Draws or redraws the scale (if necessary) based on the current title, scale, etc. in the context of the given selection.
 
-### colorbar.pointTo()
+### pointer.pointTo()
 
 Sets the pointer as described above.
 
@@ -75,8 +75,7 @@ Sets the pointer as described above.
 
 ### colorbar.origin()
 
-Sets (or returns) the offset of the colorbar as an object with an x and y
-attributes.
+Sets (or returns) the offset of the colorbar as an object with an x and y attributes.
 
 ### colorbar.scale()
 
@@ -86,18 +85,18 @@ Sets (or returns) a D3 scale associated with the colorbar object.
 
 Sets (or returns) the x,y location within the svg holding the colorbar. Specified in pixels.
 
-### colorbar.height()
+### colorbar.thickness()
 
-Sets (or fetches) the height of the scale.
+Sets (or fetches) the width of the scale (or the height, in landscape mode).
 
-### colorbar.width()
+### colorbar.barlength()
 
-Sets (or fetches) the width of the bars in the scale (or the height, in landscape view). Specified in pixels.
+Sets (or fetches) the height of the scale (or the width, in landscape mode).
 
 ### colorbar.title()
 
 Sets or changes the title of the chart.
 
-### colorbar.orientation()
+### colorbar.orient()
 
-Sets (or fetches) the orientation: must be "horizontaL" or "vertical." (Not implemented.) 
+Sets (or fetches) the orientation: must be "horizontal" or "vertical."
