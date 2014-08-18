@@ -1,6 +1,6 @@
 function Colorbar() {
     var scale, // the input scale this represents;
-    margin = {top: 20, right: 30, bottom: 30, left: 0}
+    margin = {top: 0, right: 30, bottom: 30, left: 0}
     orient = "vertical",
 
     origin = {
@@ -107,15 +107,19 @@ function Colorbar() {
 
             // select the svg if it exists
             var svg = d3.select(this)
-                .selectAll("svg.colorbar")
+                .selectAll("g.colorbar")
                 .data([origin]);
 
             // otherwise create the skeletal chart
-            var g_enter = svg.enter()
-                .append("svg")
+            var svg_enter = svg.enter()
+                .append("g")
                 .classed("colorbar", true)
+		.attr("transform",function(d) {return "translate(" + d[0] + "," + d[1] + ")"})
+
+	    var g_enter = svg_enter
                 .append("g")
                 .classed("colorbar", true);
+
             g_enter.append("g")
                 .classed("legend", true)
                 .classed("rect", true);
@@ -127,7 +131,8 @@ function Colorbar() {
                 .attr(thickness_attr, thickness + margin.left + margin.right)
                 .attr(length_attr, barlength + margin.top + margin.bottom)
                 .style("margin-top", origin.y - margin.top + "px")
-                .style("margin-left", origin.x - margin.left + "px");
+                .style("margin-left", origin.x - margin.left + "px")
+
 
             var transitionDuration = 1000;
 
