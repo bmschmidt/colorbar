@@ -149,8 +149,6 @@ function Colorbar() {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
             fillLegendScale = scale.copy();
 
-	    console.log(fillLegendScale.quantiles())
-
 	    if (typeof(fillLegendScale.invert)=="undefined") {
 		fillLegendScale = d3.scale.linear().domain(d3.extent(fillLegendScale.domain()))
 	    }
