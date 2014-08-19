@@ -17,7 +17,6 @@ function Colorbar() {
         fillLegendScale;
 
         selection.pointTo = function(inputNumbers) {
-            console.log(inputNumbers)
             var pointer = fillLegend.selectAll(".pointer");
             var pointerWidth = Math.round(thickness*3/4);
 
@@ -64,6 +63,11 @@ function Colorbar() {
                 cop = scale.copy();
                 cop.range([0, 1]);
                 cop.domain([1, 10]);
+
+
+		if (typeof(cop.invertExtent)!="undefined") {
+		    return "quantile"
+		}
                 if (Math.abs((cop(10) - cop(1)) / Math.log(10) - (cop(10) - cop(2)) / Math.log(5)) < 1e-6) {
                     return "log"
                 }
@@ -78,7 +82,8 @@ function Colorbar() {
                 }
             }
 
-            scaleType = checkScaleType();
+            var scaleType = checkScaleType();
+	    console.log(scaleType)
 
             var thickness_attr;
             var length_attr;
@@ -144,9 +149,16 @@ function Colorbar() {
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
             fillLegendScale = scale.copy();
 
-            legendRange = d3.range(
+	    console.log(fillLegendScale.quantiles())
+
+	    if (typeof(fillLegendScale.invert)=="undefined") {
+		fillLegendScale = d3.scale.linear().domain(d3.extent(fillLegendScale.domain()))
+	    }
+
+            var legendRange = d3.range(
                 0, barlength,
                 by=barlength / (fillLegendScale.domain().length - 1));
+	    
             legendRange.push(barlength);
 
             fillLegendScale.range(legendRange.reverse());
