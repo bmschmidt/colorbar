@@ -27,6 +27,9 @@ circle:hover {
     <h1>Color legend with dynamic pointer: demo</h1>
 
     <body>
+    
+    <a href=http://github.com/bmschmidt/colorbar>Source and Documentation on Github</a>
+<br><br>
     Colorize by: <button id="value">size</button>
     <button id="x">X location</button>
     <button id="y">Y location</button>
@@ -35,7 +38,6 @@ circle:hover {
     <br>
     <svg style="width:1000px;height:600px;background:beige"></svg>
     <br>
-    <a href=http://github.com/bmschmidt/colorbar>Download the source</a>
 
 </body>
 
@@ -92,8 +94,7 @@ changeFillings = function() {
 	//breaks = [0,.25,.5,.75,1].map(function(n) {return d3.quantile(localdata,n)})
 	fillings = d3.scale.quantile()
 	    .domain(localdata)
-	    .range(["red","orange","yellow","green","blue"])
-	
+	    .range(["#ffffcc","#a1dab4","#41b6c4","#2c7fb8","#253494"].reverse())
     }
 
     circles
