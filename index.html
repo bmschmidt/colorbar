@@ -1,26 +1,26 @@
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="/beta/d3.v3.min.js" charset="utf-8"></script>
     <script src="colorbar.js" charset="utf-8"></script>
 
-<style>
-.axis path,
-.axis line {
-    fill: none;
-    stroke: black;
-    shape-rendering: crispEdges;
-}
+    <style>
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
 
-.axis text {
-    font-family: sans-serif;
-    font-size: 11px;
-}
+    .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
 
 circle {
-stroke:grey;
-stroke-width:0px;
+    stroke:grey;
+    stroke-width:0px;
 }
 
 circle:hover {
-stroke-width:2px;
+    stroke-width:2px;
 }
 </style>
 
@@ -28,14 +28,16 @@ stroke-width:2px;
 
     <body>
     Colorize by: <button id="value">size</button>
-<button id="x">X location</button>
-<button id="y">Y location</button>
+    <button id="x">X location</button>
+    <button id="y">Y location</button>
+    <button id="orientation">Toggle Orientation</button>
+    <button id="scaletype">Toggle quantile scale</button>
     <br>
     <svg style="width:1000px;height:600px;background:beige"></svg>
-<br>
-      <a href=http://github.com/bmschmidt/colorbar>Download the source</a>
+    <br>
+    <a href=http://github.com/bmschmidt/colorbar>Download the source</a>
 
-    </body>
+</body>
 
 
     <script>
@@ -73,48 +75,86 @@ circles
     .style("fill",function(d) {return fillings(d.value) } )
 
 var whichValue = "value"
-
+var scaletype = "linear"
 
 changeFillings = function() {
-tops = d3.scale.category20().range()
+    tops = d3.scale.category20().range()
     var newTop = tops[Math.floor(Math.random() * tops.length)];
 
-    console.log(whichValue)
-    fillings
-        .domain(
-            d3.extent(data.map(function(d) {
+    var localdata = data.map(function(d) {
                 return d[whichValue]
-            }))).range(["white",newTop])
-    
+            })
+    fillings = d3.scale.linear()
+        .domain(d3.extent(localdata))
+        .range(["white",newTop])
+
+    if (scaletype=="quantile") {
+	//breaks = [0,.25,.5,.75,1].map(function(n) {return d3.quantile(localdata,n)})
+	fillings = d3.scale.quantile()
+	    .domain(localdata)
+	    .range(["red","orange","yellow","green","blue"])
+	
+    }
+
     circles
-    .transition().duration(1000)
+        .transition().duration(1000)
         .style("fill",function(d) {return fillings(d[whichValue]) } )
 
 }
 
+
+
 d3.selectAll("button").on("click",function(d) {
+
+    //Choose the orientation randomly.
+
+
+
+    
     variable = d3.select(this).attr("id")
-    console.log(variable)
-    whichValue = variable
+
+    if (variable=="orientation") {
+        orientation = orientation=="horizontal"?"vertical":"horizontal"
+    } else if (variable=="scaletype") {
+        scaletype = scaletype=="linear"?"quantile":"linear"
+    } else {
+       whichValue = variable
+    }
     changeFillings()
-    pointer = d3.select("#colorbar").call(colorbar);
-    colorbar.scale(fillings).title("Hover to update the pointer").update()
+    colorbar.scale(fillings);
+    colorbar = Colorbar()
+	.origin([50,20])
+	.scale(fillings)
+	.barlength(300)
+	.thickness(20)
+	.orient(orientation)
+	.title("Hover to update the pointer")
+
+   pointer = d3.selectAll("#colorbar")
+	.transition().duration(700)
+	.call(colorbar);
+    //    colorbar.scale(fillings).title("Hover to update the
+    //    pointer").update()
 })
 
 //OK, now the actual colorbar stuff:
 
-
+var orientation = "vertical"
 colorbar = Colorbar()
-    .origin([0,0])
+    .origin([50,20])
+    .thickness(100)
     .scale(fillings).barlength(300).thickness(20)
+    .orient(orientation)
     .title("Hover to update the pointer")
 
-pointer = d3.selectAll("svg").append("g").attr("id","colorbar").call(colorbar)
+bar =  d3.selectAll("svg").append("g").attr("id","colorbar")
+
+pointer = d3.selectAll("#colorbar").call(colorbar)
 
 circles
-  .on("mouseover",function(d) {pointer.pointTo(d[whichValue])})
+    .on("mouseover",function(d) {pointer.pointTo(d[whichValue])})
 
 
 </script>
 
-<svg width=1000 height=1000></svg>
+    <svg width=1000 height=1000></svg>

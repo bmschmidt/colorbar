@@ -9,15 +9,17 @@ chart for it.
 2. By binding mouseover events to its "pointTo" method, hovering on a chart element will
 update a pointer on the legend.
 
-See example at http://benschmidt.org/colorbar
+See example at http://benschmidt.org/colorbar.
+
+It supports transitions, repositioning, and a variety of different types of scales: at least log, linear, square root, and quantile.
 
 ## Creation
 
-Build a colorbar by calling the colorbar function on a D3 selection. (Normally, this would be a `g` element; creation is analogous to creating an axis.)
+Thanks to some nice contributions by user [enucatl](https://github.com/Enucatl), this now behaves more like a good d3 component: you can call it on a selection, usually a "g" element.
+
+Build a colorbar by calling the colorbar function on a D3 selection. 
 
 For example:
-
-
 
 ```
 <script src="http://benschmidt.org/colorbar/colorbar.js"></script>
@@ -28,28 +30,29 @@ myScale = d3.scale.linear().range(["red","white","blue"]).domain([0,4,25])
 colorbar = Colorbar()
 	.origin([15,60])
 	.scale(myScale)
+	.orient("vertical")
 
 placeholder = "#colorbar-here"
 
-pointer = d3.select(placeholder)
+colorbarObject = d3.select(placeholder)
     .call(colorbar)
 	
 </script>
 ```
 
-(I'd download the javascript, though: no promises that url will permanently contain the latest version of the script).
+(I'd download the javascript, though, rather than use my hosted copy: no promises that url will permanently contain the latest version of the script, or that the API won't change.)
 
 ## Update
 
-The colorbar call returns an object that can be used to change the pointer location using a "pointTo" method.
+The colorbar call returns a selection with an additional method that can be used to change the pointer location using a "pointTo" method.
 
 ```
-pointer.pointTo(26)
+colorbarObject.pointTo(26)
 ```
 
 The pointer will drop to the appropriate place, and then fade away after five seconds.
 
-In practice, you'll almost always want to bind this to a mouseover event: some fake code would look like this:
+In practice, you'll almost always want to bind this pointer a mouseover event: some fake code would look like this:
 ```
 var elements = d3.selectAll("circle").data(whatever)
 
@@ -57,7 +60,7 @@ var elements = d3.selectAll("circle").data(whatever)
 elements.style("fill",function(d) {return myScale(d.colorDatum)})
 
 //The sort of mouseover event you want:
-elements.on("mouseover",function(d) {pointer.pointTo(d.colorDatum)})
+elements.on("mouseover",function(d) {mycolorbar.pointTo(d.colorDatum)})
 
 ```
 
@@ -67,23 +70,15 @@ elements.on("mouseover",function(d) {pointer.pointTo(d.colorDatum)})
 
 Draws or redraws the scale (if necessary) based on the current title, scale, etc. in the context of the given selection.
 
-### pointer.pointTo()
+### selection.call(colobar).pointTo()
 
-Sets the pointer as described above.
+Sets the pointer as described above. Note that this is called on the returned selection, rather than on the component creation function as all the others are. 
 
 ## Accessors
-
-### colorbar.origin()
-
-Sets (or returns) the offset of the colorbar as an object with an x and y attributes.
 
 ### colorbar.scale()
 
 Sets (or returns) a D3 scale associated with the colorbar object.
-
-### colorbar.origin()
-
-Sets (or returns) the x,y location within the svg holding the colorbar. Specified in pixels.
 
 ### colorbar.thickness()
 
@@ -95,8 +90,22 @@ Sets (or fetches) the height of the scale (or the width, in landscape mode).
 
 ### colorbar.title()
 
-Sets or changes the title of the chart.
+Sets or changes the title of the chart. (Not currently supported)
 
 ### colorbar.orient()
 
 Sets (or fetches) the orientation: must be "horizontal" or "vertical."
+
+### colorbar.margins()
+
+Sets (or fetches) the margins of the SVG bounding box.
+
+By default, `margin = {top: 5, right: 30, bottom: 25, left: 0}`: these parameters can be changed if you have clipping problems.
+
+The SVG box is there to begin with so that axis transitions don't take up the whole screen. Ideally, it would be set by some `getbbox()` method, I think.
+
+### colorbar.origin()
+
+Sets (or returns) the offset of the colorbar as an object with an x and y attributes.
+
+Usually, you will be better off changing the location of the parent selection than calling this method: it will probably be retired at some point.
