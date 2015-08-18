@@ -12,8 +12,6 @@ function Colorbar() {
     scaleType = "linear";
 
 
-
-
     checkScaleType = function (scale) {
         // AFAIK, d3 scale types aren't easily accessible from the scale itself.
         // But we need to know the scale type for formatting axes properly
@@ -66,9 +64,12 @@ function Colorbar() {
             pointers
                 .enter()
                 .append('path')
-                .attr('transform',"translate(0," + (
-                    fillLegendScale(inputNumbers) - pointerWidth)+ ')'
-                     )
+                .attr('transform',
+		      orient=="vertical" ?
+		      "translate(0," + (fillLegendScale(inputNumbers))+ ')':
+		      "translate(" + (fillLegendScale(inputNumbers))+ ',0)'
+		     )
+
                 .classed("pointer",true)
                 .classed("axis",true)
                 .attr('d', pointerSVGdef())
