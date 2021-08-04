@@ -1,3 +1,8 @@
+DEPRECATION
+=======
+
+This project is for a very old version of D3 and is no longer maintained. I personally would use [https://d3-legend.susielu.com/] for this purpose right now.
+
 Colorbar
 ========
 
